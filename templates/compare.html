@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}装备横向对比 · 海上无人平台资料库{% endblock %}
+{% block content %}
+<div class="page-shell compare-page" data-compare-page data-selection-authoritative="{{ 'true' if 'ids' in request.args else 'false' }}">
+  <script type="application/json" data-compare-page-selection>{{ comparison_selection|tojson }}</script>
+  <nav class="breadcrumbs"><a href="{{ url_for('index') }}">平台目录</a><span>/</span><span aria-current="page">装备对比</span></nav>
+  <header class="page-heading"><span class="eyebrow eyebrow-dark">SIDE-BY-SIDE COMPARISON</span><h1>装备横向对比</h1><p>按原始文本并列呈现公开性能；不将不同工况自动换算为排名。</p></header>
+
+  {% if platforms|length < 2 %}
+  <section class="compare-empty"><span aria-hidden="true">⇄</span><h2>请选择 2–4 个平台</h2><p>在目录卡片或列表中点击“加入对比”，底部选择栏会保留当前选择。</p><a class="button button-primary" href="{{ url_for('index') }}">返回平台目录</a></section>
+  {% else %}
+  <div class="comparison-scroll" tabindex="0" aria-label="横向滚动查看完整对比表">
+    <table class="comparison-table" data-testid="comparison-table">
+      <thead><tr><th scope="col">比较项目</th>{% for platform in platforms %}<th scope="col" data-platform-id="{{ platform.id }}"><div class="compare-platform-head"><img src="{{ platform.primary_image.src }}" alt="{{ platform.name }}" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}"><span class="label-badge label-{{ platform.label|replace('/', '') }}">{{ platform.label }}</span><h2><a href="{{ url_for('detail', platform_id=platform.id) }}">{{ platform.name }}</a></h2><p>{{ platform.country }}</p><button class="button button-text button-small" type="button" data-compare-toggle data-platform-id="{{ platform.id }}" data-platform-name="{{ platform.name }}" data-platform-country="{{ platform.country }}" aria-pressed="true">移出对比</button></div></th>{% endfor %}</tr></thead>
+      <tbody>
+        <tr><th scope="row">国家 / 地区</th>{% for p in platforms %}<td>{{ p.country }}</td>{% endfor %}</tr>
+        <tr><th scope="row">能力标签</th>{% for p in platforms %}<td><span class="label-badge label-{{ p.label|replace('/', '') }}">{{ p.label }}</span></td>{% endfor %}</tr>
+        <tr><th scope="row">资料批次</th>{% for p in platforms %}<td>第{{ '一' if p.batch == 1 else '二' }}批</td>{% endfor %}</tr>
+        <tr><th scope="row">证据等级</th>{% for p in platforms %}<td>{{ p.evidence_raw|shown }}</td>{% endfor %}</tr>
+        <tr><th scope="row">平台类型</th>{% for p in platforms %}<td>{{ p.platform_type|shown }}</td>{% endfor %}</tr>
+        {% for field, label in performance %}<tr><th scope="row">{{ label }}</th>{% for p in platforms %}<td><strong>{{ p[field]|shown }}</strong>{% if p.performance_sources %}<a class="cell-source" href="{{ p.performance_sources[0].url }}" target="_blank" rel="noopener noreferrer">性能来源 ↗</a>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+        <tr class="comparison-long"><th scope="row">货物 / 武器载荷</th>{% for p in platforms %}<td>{{ p.payload_description|shown }}</td>{% endfor %}</tr>
+        <tr class="comparison-long"><th scope="row">操控与人员参与</th>{% for p in platforms %}<td>{{ p.control_people|shown }}</td>{% endfor %}</tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="comparison-note">“—”表示数据未公开或来源未给出；不代表数值为 0。最多同时显示 4 个平台。</p>
+  {% endif %}
+</div>
+{% endblock %}

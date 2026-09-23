@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ platform.name }} · 平台技术档案{% endblock %}
+{% block content %}
+<div class="page-shell detail-page">
+  <nav class="breadcrumbs" aria-label="面包屑"><a href="{{ url_for('index') }}">平台目录</a><span>/</span><span aria-current="page">{{ platform.name }}</span></nav>
+
+  <header class="detail-titlebar">
+    <div><div class="title-badges"><span class="label-badge label-{{ platform.label|replace('/', '') }}">{{ platform.label }}</span><span class="evidence-badge evidence-{{ platform.evidence_code or 'NA' }}">{{ evidence_badge_label(platform.evidence_code, platform.evidence_raw) }}{% if platform.evidence_code %} · {{ evidence_help[platform.evidence_code] }}{% endif %}</span></div><h1>{{ platform.name }}</h1><p>{{ platform.country }}</p></div>
+    <button class="button button-compare" type="button" data-compare-toggle data-platform-id="{{ platform.id }}" data-platform-name="{{ platform.name }}" data-platform-country="{{ platform.country }}" aria-pressed="false">＋ 加入对比</button>
+  </header>
+
+  <section class="detail-overview" aria-label="平台概览">
+    <div class="gallery" data-gallery>
+      <div class="gallery-stage">
+        <img src="{{ images[0].src }}" alt="{{ platform.name }}；{{ images[0].caption }}" data-gallery-main data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
+        {% if images[0].is_placeholder %}<span class="placeholder-flag placeholder-flag-large">统一占位图 · 待补充实图</span>{% endif %}
+      </div>
+      <div class="gallery-meta"><p data-gallery-caption>{{ images[0].caption }}</p><a {% if not images[0].source_url %}hidden{% endif %} href="{{ images[0].source_url or '#' }}" target="_blank" rel="noopener noreferrer" data-gallery-source>{{ images[0].source_name or '查看图片来源' }} ↗</a></div>
+      {% if images|length > 1 %}<div class="gallery-thumbs" aria-label="切换平台图片">
+        {% for image in images %}<button type="button" class="gallery-thumb {{ 'is-active' if loop.first else '' }}" aria-pressed="{{ 'true' if loop.first else 'false' }}" aria-label="显示第 {{ loop.index }} 张图片：{{ image.caption }}" data-gallery-thumb data-src="{{ image.src }}" data-alt="{{ platform.name }}；{{ image.caption }}" data-caption="{{ image.caption }}" data-source-url="{{ image.source_url or '' }}" data-source-name="{{ image.source_name or '查看图片来源' }}"><img src="{{ image.src }}" alt="" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}"></button>{% endfor %}
+      </div>{% endif %}
+    </div>
+
+    <aside class="platform-snapshot">
+      <span class="eyebrow eyebrow-dark">PLATFORM PROFILE</span><h2>平台概况</h2>
+      <dl><div><dt>平台类型</dt><dd>{{ platform.platform_type|shown }}</dd></div><div><dt>主要用途 / 载荷</dt><dd>{{ platform.payload_description|shown }}</dd></div><div><dt>国家 / 地区</dt><dd>{{ platform.country }}</dd></div><div><dt>能力标签</dt><dd>{{ platform.label }}</dd></div><div><dt>资料批次</dt><dd>第{{ '一' if platform.batch == 1 else '二' }}批</dd></div><div><dt>证据状态</dt><dd>{{ platform.evidence_raw|shown }}</dd></div></dl>
+      {% if platform.batch == 2 %}<p class="evidence-notice">第二批平台的能力资料与活动 / 试验 / 展示记录可能来自不同来源或不同活动，应分别核验。</p>{% endif %}
+    </aside>
+  </section>
+
+  <section class="detail-section" id="performance">
+    <div class="section-heading"><div><span class="eyebrow eyebrow-dark">PUBLIC SPECIFICATIONS</span><h2>公开性能</h2></div><p>保留来源原有单位、范围与“约 / ≥ / &gt;”等限定条件。</p></div>
+    <dl class="metric-strip">{% for field, label in highlight_fields %}<div><dt>{{ label }}</dt><dd>{{ platform[field]|shown }}</dd></div>{% endfor %}</dl>
+    <div class="spec-groups">
+      {% for group, fields in performance_groups %}<section class="spec-group"><h3>{{ group }}</h3><dl>{% for field, label in fields %}<div><dt>{{ label }}</dt><dd>{{ platform[field]|shown }}</dd></div>{% endfor %}{% if group == '运载性能' %}<div class="spec-wide"><dt>货物 / 武器载荷原文</dt><dd>{{ platform.payload_description|shown }}</dd></div>{% endif %}</dl></section>{% endfor %}
+    </div>
+    {% if links_by_role.performance %}<div class="inline-sources"><span>性能来源</span>{% for link in links_by_role.performance %}<a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.title }} ↗</a>{% endfor %}</div>{% endif %}
+  </section>
+
+  <section class="detail-section" id="capabilities">
+    <div class="section-heading"><div><span class="eyebrow eyebrow-dark">MISSION CAPABILITIES</span><h2>任务能力</h2></div><p>仅从数据库现有载荷描述中提取，不补写未公开能力。</p></div>
+    {% if capability_groups %}<div class="capability-groups">{% for group in capability_groups %}<div class="capability-group"><h3>{{ group.heading }}</h3><div>{% for item in group['items'] %}<span>{{ item }}</span>{% endfor %}</div></div>{% endfor %}</div>{% endif %}
+    <p class="source-text-block">{{ platform.payload_description|shown }}</p>
+  </section>
+
+  <section class="detail-section" id="activities">
+    <div class="section-heading"><div><span class="eyebrow eyebrow-dark">OPERATIONAL EVIDENCE</span><h2>活动 / 试验 / 部署 / 实战记录</h2></div><p>{{ platform.evidence_raw|shown }}</p></div>
+    {% if activities %}<ol class="timeline">{% for activity in activities %}<li><div class="timeline-year">{{ activity.year }}</div><div class="timeline-marker" aria-hidden="true"></div><article><span>记录 {{ loop.index|string|upper }}</span><p>{{ activity.description }}</p>{% if links_by_role.activity %}<div>{% for link in links_by_role.activity %}<a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">查看活动原始资料 ↗</a>{% endfor %}</div>{% endif %}</article></li>{% endfor %}</ol>{% else %}<p class="empty-inline">原始数据暂未拆分出活动记录。</p>{% endif %}
+  </section>
+
+  <section class="detail-section" id="control">
+    <div class="section-heading"><div><span class="eyebrow eyebrow-dark">HUMAN–MACHINE TEAMING</span><h2>操控方式与人员参与</h2></div></div>
+    <div class="control-panel"><div class="control-icon" aria-hidden="true">⌁</div><p>{{ platform.control_people|shown }}</p></div>
+    {% if links_by_role.control %}<div class="inline-sources"><span>操控 / 任务来源</span>{% for link in links_by_role.control %}<a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.title }} ↗</a>{% endfor %}</div>{% endif %}
+  </section>
+
+  <section class="detail-section references-section" id="references">
+    <div class="section-heading"><div><span class="eyebrow eyebrow-dark">REFERENCES</span><h2>数据来源</h2></div><p>所有入口均直接打开原网页或原始 PDF。</p></div>
+    <div class="reference-grid">{% for link in links %}{% include 'partials/source_link.html' %}{% endfor %}</div>
+    {% if platform.verification_note %}<aside class="verification-note"><strong>核验备注</strong><p>{{ platform.verification_note }}</p></aside>{% endif %}
+  </section>
+</div>
+{% endblock %}

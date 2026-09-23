@@ -1,0 +1,14 @@
+<article class="platform-card" data-testid="platform-card" data-platform-id="{{ platform.id }}">
+  <a class="card-media" href="{{ url_for('detail', platform_id=platform.id) }}" aria-label="查看 {{ platform.name }} 详情">
+    <img src="{{ platform.primary_image.src }}" alt="{{ platform.name }}；{{ platform.primary_image.caption }}" loading="lazy" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
+    {% if platform.primary_image.is_placeholder %}<span class="placeholder-flag">图片待补充</span>{% endif %}
+    <span class="batch-badge">第{{ '一' if platform.batch == 1 else '二' }}批</span>
+  </a>
+  <div class="card-body">
+    <div class="card-badges"><span class="label-badge label-{{ platform.label|replace('/', '') }}">{{ platform.label }}</span><span class="evidence-badge evidence-{{ platform.evidence_code or 'NA' }}">{{ evidence_badge_label(platform.evidence_code, platform.evidence_raw) }}</span></div>
+    <div class="card-heading"><p>{{ platform.country }}</p><h3><a href="{{ url_for('detail', platform_id=platform.id) }}">{{ platform.name }}</a></h3></div>
+    <dl class="card-specs">{% for spec in platform.key_specs %}<div><dt>{{ spec.label }}</dt><dd>{{ spec.value|shown }}</dd></div>{% endfor %}</dl>
+    <p class="card-activity"><span aria-hidden="true"></span>{{ platform.lead_activity|shown }}</p>
+    <div class="card-actions"><a class="button button-secondary button-small" href="{{ url_for('detail', platform_id=platform.id) }}">查看档案</a><button class="button button-compare button-small" type="button" data-compare-toggle data-platform-id="{{ platform.id }}" data-platform-name="{{ platform.name }}" data-platform-country="{{ platform.country }}" aria-pressed="false">＋ 加入对比</button></div>
+  </div>
+</article>

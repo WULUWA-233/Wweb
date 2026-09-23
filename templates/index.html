@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="catalog-hero">
+  <div class="page-shell hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">MARITIME UNCREWED SYSTEMS CATALOGUE</span>
+      <h1>海上无人补给 / 作战平台资料库</h1>
+      <p>收录具备补给、武器或作战载荷能力的海上无人平台，汇集公开性能、活动记录与原文来源。</p>
+      <form class="hero-search" action="{{ url_for('index') }}" method="get" role="search">
+        <label class="sr-only" for="hero-q">搜索平台、国家、任务或演习</label>
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="hero-q" type="search" name="q" value="{{ filters.q }}" placeholder="搜索平台、国家、任务或演习……">
+        {% for key in ['country', 'label', 'batch', 'evidence'] %}{% if filters[key] %}<input type="hidden" name="{{ key }}" value="{{ filters[key] }}">{% endif %}{% endfor %}
+        <input type="hidden" name="view" value="{{ view }}">
+        <button class="button button-primary" type="submit">搜索资料库</button>
+      </form>
+    </div>
+    <dl class="hero-stats" aria-label="数据库统计">
+      <div><dt>{{ counts.total }}</dt><dd>收录平台</dd></div>
+      <div><dt>{{ counts.countries }}</dt><dd>国家 / 地区</dd></div>
+      <div><dt>{{ counts.activities }}</dt><dd>活动记录</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="catalog-section page-shell">
+  <div class="mobile-filter-row">
+    <button class="button button-secondary" type="button" data-filter-open aria-controls="mobile-filters" aria-expanded="false">筛选{% if active_filters %}<span class="filter-count">{{ active_filters }}</span>{% endif %}</button>
+    <span>{{ platforms|length }} 个结果</span>
+  </div>
+
+  <div class="catalog-layout">
+    <aside class="filter-sidebar" aria-label="平台筛选">
+      {% set filter_prefix = 'desktop' %}{% include 'partials/filters.html' %}
+    </aside>
+
+    <div class="catalog-results">
+      <header class="results-toolbar">
+        <div><span class="eyebrow eyebrow-dark">CATALOGUE</span><h2>装备目录</h2><p>共找到 <strong>{{ platforms|length }}</strong> 个平台{% if active_filters %} · 已应用 {{ active_filters }} 项筛选{% endif %}</p></div>
+        <div class="view-switch" aria-label="目录视图">
+          <a href="{{ query_url(view='grid') }}" class="{{ 'is-active' if view == 'grid' else '' }}" aria-current="{{ 'page' if view == 'grid' else 'false' }}"><span aria-hidden="true">▦</span> 网格</a>
+          <a href="{{ query_url(view='list') }}" class="{{ 'is-active' if view == 'list' else '' }}" aria-current="{{ 'page' if view == 'list' else 'false' }}"><span aria-hidden="true">☷</span> 列表</a>
+        </div>
+      </header>
+      {% include 'platform_list.html' %}
+    </div>
+  </div>
+</section>
+
+<div class="filter-drawer" id="mobile-filters" data-filter-drawer hidden>
+  <button type="button" class="filter-backdrop" data-filter-close aria-label="关闭筛选"></button>
+  <aside class="filter-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="mobile-filter-title">
+    <div class="drawer-heading"><h2 id="mobile-filter-title">筛选平台</h2><button class="icon-button" type="button" data-filter-close aria-label="关闭筛选">×</button></div>
+    {% set filter_prefix = 'mobile' %}{% include 'partials/filters.html' %}
+  </aside>
+</div>
+{% endblock %}

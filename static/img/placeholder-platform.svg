@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">平台图片待补充</title>
+  <desc id="desc">统一的海上无人平台图片占位图</desc>
+  <rect width="1200" height="675" fill="#e8eef0"/>
+  <path d="M0 510 C175 475 300 548 470 515 C650 478 780 544 940 510 C1045 488 1135 494 1200 508 V675 H0Z" fill="#d4e1e5"/>
+  <path d="M330 395h430l82 66H258z" fill="#8da5ae"/>
+  <path d="M438 331h214l51 64H397z" fill="#a9bbc1"/>
+  <path d="M543 252h16v79h-16zM559 267l94 31-94 8z" fill="#6c8995"/>
+  <circle cx="282" cy="461" r="9" fill="#607c87"/><circle cx="818" cy="461" r="9" fill="#607c87"/>
+  <text x="600" y="585" text-anchor="middle" fill="#4d6873" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="30" font-weight="700">平台图片待补充</text>
+  <text x="600" y="620" text-anchor="middle" fill="#78909a" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="18">PLACEHOLDER · 非装备实拍图</text>
+</svg>

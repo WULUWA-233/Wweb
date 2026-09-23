@@ -1,0 +1,13 @@
+{% if platforms %}
+  {% if view == 'list' %}
+  <div class="platform-list" data-testid="platform-list">
+    {% for platform in platforms %}{% include 'partials/platform_list_row.html' %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="platform-grid" data-testid="platform-grid">
+    {% for platform in platforms %}{% include 'partials/platform_card.html' %}{% endfor %}
+  </div>
+  {% endif %}
+{% else %}
+  <div class="empty-state"><span aria-hidden="true">◇</span><h3>没有符合条件的平台</h3><p>尝试减少筛选条件，或换一个名称、任务及演习关键词。</p><a class="button button-secondary" href="{{ query_url(q='', country='', label='', batch='', evidence='') }}">清除筛选</a></div>
+{% endif %}

@@ -1,0 +1,35 @@
+<form class="filter-form" action="{{ url_for('index') }}" method="get" data-filter-form>
+  {% if filters.q %}<input type="hidden" name="q" value="{{ filters.q }}">{% endif %}
+  <input type="hidden" name="view" value="{{ view }}">
+  <div class="filter-heading"><div><span class="eyebrow eyebrow-dark">FILTERS</span><h2>筛选平台</h2></div>{% if active_filters %}<span>{{ active_filters }} 项</span>{% endif %}</div>
+
+  <fieldset class="filter-group">
+    <legend>国家 / 地区</legend>
+    <label class="filter-option"><input type="radio" name="country" value="" {{ 'checked' if not filters.country else '' }}><span>全部国家</span></label>
+    {% for country in countries %}<label class="filter-option"><input type="radio" name="country" value="{{ country }}" {{ 'checked' if filters.country == country else '' }}><span>{{ country }}</span></label>{% endfor %}
+  </fieldset>
+
+  <fieldset class="filter-group">
+    <legend>能力标签</legend>
+    <label class="filter-option"><input type="radio" name="label" value="" {{ 'checked' if not filters.label else '' }}><span>全部标签</span></label>
+    <label class="filter-option"><input type="radio" name="label" value="L" {{ 'checked' if filters.label == 'L' else '' }}><span><b class="mini-label label-L">L</b> 补给运输</span></label>
+    <label class="filter-option"><input type="radio" name="label" value="L/W" {{ 'checked' if filters.label == 'L/W' else '' }}><span><b class="mini-label label-LW">L/W</b> 补给 + 武器</span></label>
+    <label class="filter-option"><input type="radio" name="label" value="W" {{ 'checked' if filters.label == 'W' else '' }}><span><b class="mini-label label-W">W</b> 作战载荷</span></label>
+  </fieldset>
+
+  <fieldset class="filter-group">
+    <legend>资料批次</legend>
+    <label class="filter-option"><input type="radio" name="batch" value="" {{ 'checked' if not filters.batch else '' }}><span>全部批次</span></label>
+    <label class="filter-option"><input type="radio" name="batch" value="1" {{ 'checked' if filters.batch == '1' else '' }}><span>第一批 · 高证据链</span></label>
+    <label class="filter-option"><input type="radio" name="batch" value="2" {{ 'checked' if filters.batch == '2' else '' }}><span>第二批 · 分离验证</span></label>
+  </fieldset>
+
+  <fieldset class="filter-group">
+    <legend>证据等级</legend>
+    <label class="filter-option"><input type="radio" name="evidence" value="" {{ 'checked' if not filters.evidence else '' }}><span>全部等级</span></label>
+    {% for code, meaning in evidence_help.items() %}<label class="filter-option"><input type="radio" name="evidence" value="{{ code }}" {{ 'checked' if filters.evidence == code else '' }}><span><b class="evidence-mini">{{ code }}</b> {{ meaning }}</span></label>{% endfor %}
+    <label class="filter-option"><input type="radio" name="evidence" value="unrated" {{ 'checked' if filters.evidence == 'unrated' else '' }}><span><b class="evidence-mini evidence-mini-unrated">未达E2</b> 未评级 / 未达阈值</span></label>
+  </fieldset>
+
+  <div class="filter-buttons"><button class="button button-primary" type="submit">应用筛选</button><a class="button button-text" href="{{ url_for('index', view=view) }}">重置全部</a></div>
+</form>

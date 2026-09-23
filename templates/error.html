@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}{{ error.code }} · 页面提示{% endblock %}
+{% block content %}<div class="page-shell error-page"><span>{{ error.code }}</span><h1>{{ '没有找到该页面' if error.code == 404 else '请求参数有误' }}</h1><p>{{ '平台编号或页面地址可能已经变化。' if error.code == 404 else '请检查比较平台编号，并将数量限制在 2–4 个。' }}</p><a class="button button-primary" href="{{ url_for('index') }}">返回平台目录</a></div>{% endblock %}
