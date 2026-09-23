@@ -2,7 +2,7 @@
 
 这是一个面向资料检索、装备对照与原文核验的本地数字图鉴。项目采用 **Python Flask + SQLite + Jinja + 自有 CSS + 少量原生 JavaScript**，把两份工作簿中的海上无人平台整理成可搜索、可筛选、可进入详情、可横向比较的网站。
 
-当前数据库包含 **22 型平台（第一批 12 型、第二批 10 型）**，覆盖 **6 个国家 / 地区、30 条活动记录和 67 个原文入口**，其中包括 6 型中国平台。网站保留原表的 L / L/W / W 标签、E2–E5 证据等级、未达 E2 状态、八项公开性能、活动记录、操控与人员参与说明，以及可直接打开的原文入口。
+当前数据库包含 **22 型平台（第一批 12 型、第二批 10 型）**，覆盖 **6 个国家 / 地区、30 条活动记录和 67 个原文入口**，其中包括 6 型中国平台。22 型平台均已按装备名称匹配本地主展示图；网站同时保留原表的 L / L/W / W 标签、E2–E5 证据等级、未达 E2 状态、八项公开性能、活动记录、操控与人员参与说明，以及可直接打开的原文入口。
 
 ## 1. 当前功能
 
@@ -37,6 +37,7 @@
 website_catalog/
 ├─ app.py                         Flask 入口、参数化查询、页面路由
 ├─ import_data.py                 Excel → SQLite 的可重复导入脚本
+├─ import_images.py               本地主展示图清单 → SQLite 的可重复导入脚本
 ├─ migrate.py                     前向、增量、可重复执行的迁移脚本
 ├─ manage_images.py               图片记录的校验与维护命令行工具
 ├─ schema.sql                     新数据库的完整结构
@@ -44,6 +45,7 @@ website_catalog/
 ├─ data/
 │  ├─ source.xlsx                 原始工作簿副本
 │  ├─ source_china.xlsx           中国平台工作簿副本
+│  ├─ platform_image_manifest.csv 22 型平台图片来源、匹配说明与本地路径
 │  └─ platforms.sqlite3           默认 SQLite 数据库
 ├─ migrations/
 │  └─ 001_add_platform_images.sql 图片表迁移
@@ -54,7 +56,7 @@ website_catalog/
 │  ├─ js/compare.js               2–4 型平台选择与对比状态
 │  └─ img/
 │     ├─ placeholder-platform.svg 明确标注的缺图占位图
-│     └─ platforms/               后续添加的本地平台图片目录
+│     └─ platforms/               22 型平台本地主展示图及后续追加图片
 ├─ screenshots/                   桌面首页、档案、对比及手机验收截图
 ├─ tests/test_site.py             导入、筛选、档案、图片、对比与迁移测试
 ├─ THIRD_PARTY_NOTICES.md         第三方组件借鉴说明
@@ -70,13 +72,14 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe migrate.py
 .\.venv\Scripts\python.exe import_data.py
+.\.venv\Scripts\python.exe import_images.py
 .\.venv\Scripts\python.exe app.py
 ```
 
 浏览器打开：<http://127.0.0.1:5000/>  
 终端按 `Ctrl+C` 结束本地服务。
 
-仓库已包含默认数据库，因此快速启动中先运行迁移、再重新导入。`migrate.py` 具有幂等性；数据库已经是最新结构时会显示“数据库已经是最新结构”。
+仓库已包含默认数据库，因此快速启动中先运行迁移、再重新导入平台资料和图片清单。`migrate.py`、`import_data.py` 与 `import_images.py` 均可重复执行；数据库已经是最新结构时，迁移脚本会显示“数据库已经是最新结构”。
 
 ### macOS / Linux
 
@@ -85,6 +88,7 @@ python3 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements.txt
 ./.venv/bin/python migrate.py
 ./.venv/bin/python import_data.py
+./.venv/bin/python import_images.py
 ./.venv/bin/python app.py
 ```
 
@@ -164,7 +168,19 @@ Copy-Item data\platforms.sqlite3 data\platforms.before-image-migration.sqlite3
 
 更新原有全球平台工作簿时使用 `--source-key global`。后续增加第三份工作簿时，应为它分配新的 ASCII 来源键，例如 `regional_2026`；来源键可使用字母、数字、点、下划线和连字符。
 
-### 4.5 重复导入为何会保留图片
+### 4.5 导入 22 型平台的本地主展示图
+
+项目内的 `data/platform_image_manifest.csv` 以平台名称为稳定匹配键，记录 22 张本地主展示图的相对路径、图片类型、来源名称、来源网页、匹配关系及使用限制。将平台资料导入数据库后执行：
+
+```powershell
+.\.venv\Scripts\python.exe import_images.py
+```
+
+脚本会核对清单中的平台名称、本地文件、路径范围和 HTTP(S) 来源入口，再将每张图片设为对应平台的主图。重复执行会更新同一条清单记录，而不会累积重复图片；卡片、列表、档案和对比页随后都会采用对应的本地主展示图。
+
+图片清单承担来源审计用途：其中的来源等级、精确匹配或基础艇型匹配说明、实艇或模型属性、载荷配置差异及其他限制应与图片记录一同保留。来源可靠度与图片再使用许可属于不同事项；公开发布网站前，应逐项核实原网页的许可条件，并按要求保留署名和来源链接。
+
+### 4.6 重复导入为何会保留图片
 
 平台按名称执行 UPSERT，原平台 ID 得以复用；每份工作簿由稳定来源键隔离，中国工作表的内部坐标形如 `china::工作表名`，不会与全球工作簿的同名工作表和行号冲突。导入前会在同一事务中临时释放当前来源的工作表行号坐标，因此工作表内重排或插入行也不会改变既有平台 ID。脚本仅刷新由工作簿维护的 `activities` 与 `source_links` 子记录，人工维护的 `platform_images` 不参与刷新，所以第二次、第三次导入后仍会保留。
 
@@ -408,13 +424,17 @@ ORDER BY is_primary DESC, sort_order, id;
 
 ## 8. 当前图片状态
 
-现有两份 Excel 资料没有附带可复用、已经核验出处的装备照片，因此默认数据库暂未写入平台实拍图。页面会统一显示：
+22 型平台均已按现有装备名称匹配一张本地主展示图，并通过 `data/platform_image_manifest.csv` 保存本地路径、图片来源、匹配关系和适配限制。执行以下命令即可重建或更新数据库中的图片记录：
 
-```text
-static/img/placeholder-platform.svg
+```powershell
+.\.venv\Scripts\python.exe import_images.py
 ```
 
-占位图内明确写有“平台图片待补充 / PLACEHOLDER”，只表示当前缺少经核验图片，绝非装备实拍图。这样可以避免用随机船艇照片代替具体型号，也避免给图片来源核验造成混淆。按上一节补录图片后，卡片、列表、档案和对比页会自动使用新图片。
+主展示图包含实艇航行 / 演练照、厂商产品照、展会样艇或比例模型等不同类型；个别条目用于展示基础艇型，未代表某一具体自主化改装或任务载荷状态。页面图注与来源入口应结合清单中的匹配说明阅读，不应仅凭图片推断具体配置。
+
+`static/img/placeholder-platform.svg` 继续作为容错资源：后续新建平台尚未导入图片记录，或图片路径失效时，页面会显示明确标注的占位图，而不会用其他艇型照片代替。
+
+图片来源可核验并不等同于已取得公开再发布许可。正式公开部署前，应逐图检查来源网页的版权、许可与署名要求，保留原始出处，并替换许可范围不符合发布场景的文件。
 
 ## 9. 运行自动测试
 
@@ -431,6 +451,7 @@ static/img/placeholder-platform.svg
 - 单图 / 多图顺序、危险 URL 与越界本地路径处理；
 - 2、3、4 型平台对比及异常参数；
 - 重复导入后图片保留；
+- 22 型平台主展示图清单的完整导入与幂等更新；
 - 数据库迁移的幂等性和旧表保留；
 - 首页统计数字随数据库变化。
 
@@ -457,7 +478,8 @@ static/img/placeholder-platform.svg
 
 ## 12. 当前限制与后续优化
 
-- 当前两份工作簿没有附带已经核验许可与出处的装备照片，因此正式数据库仍使用明确标注的统一占位图；需按第 7 节逐图补录。
+- 22 张主展示图已完成平台名称匹配与来源记录，但来源等级、型号匹配和公开再发布许可是不同维度；公开部署前仍需依据 `data/platform_image_manifest.csv` 逐项核实许可并保留署名。
+- 部分展示图为基础艇型、展会样艇、比例模型或带版式的官方资料图；页面图注保留这些限制，后续取得同型号、同配置且许可更明确的实艇照片时可替换。
 - 活动记录已经拆成一对多时间线，但来源目前仍按“平台 + 用途”关联；若要精确做到一条事件对应一条来源，可增加活动—来源关联表。
 - 性能仍以来源原文文本保存，适合核验但不适合自动数值排序；后续可另加规范化数值字段，同时继续保留原文。
 - 本版没有登录、后台管理、在线编辑、自动爬虫或多用户审批；维护通过导入脚本、migration 和图片 CLI 完成。

@@ -1,6 +1,6 @@
 <article class="platform-card" data-testid="platform-card" data-platform-id="{{ platform.id }}">
   <a class="card-media" href="{{ url_for('detail', platform_id=platform.id) }}" aria-label="查看 {{ platform.name }} 详情">
-    <img src="{{ platform.primary_image.src }}" alt="{{ platform.name }}；{{ platform.primary_image.caption }}" loading="lazy" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
+    <img src="{{ platform.primary_image.src }}" alt="{{ platform.name }}；{{ platform.primary_image.caption }}" loading="lazy" decoding="async" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
     {% if platform.primary_image.is_placeholder %}<span class="placeholder-flag">图片待补充</span>{% endif %}
     <span class="batch-badge">第{{ '一' if platform.batch == 1 else '二' }}批</span>
   </a>

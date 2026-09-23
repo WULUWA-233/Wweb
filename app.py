@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import mimetypes
 import re
 import sqlite3
 from pathlib import Path, PurePosixPath
@@ -12,6 +13,11 @@ from flask import Flask, abort, g, render_template, request, url_for
 
 
 ROOT = Path(__file__).resolve().parent
+# Windows' MIME registry does not consistently include modern web image
+# formats. Register them explicitly so Flask's static route serves the eight
+# source files that are genuinely WebP/AVIF with browser-correct media types.
+mimetypes.add_type("image/webp", ".webp")
+mimetypes.add_type("image/avif", ".avif")
 PERFORMANCE = (
     ("length_text", "长度"),
     ("beam_draft_text", "宽度 / 吃水"),

@@ -12,12 +12,12 @@
   <section class="detail-overview" aria-label="平台概览">
     <div class="gallery" data-gallery>
       <div class="gallery-stage">
-        <img src="{{ images[0].src }}" alt="{{ platform.name }}；{{ images[0].caption }}" data-gallery-main data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
+        <img src="{{ images[0].src }}" alt="{{ platform.name }}；{{ images[0].caption }}" decoding="async" data-gallery-main data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}">
         {% if images[0].is_placeholder %}<span class="placeholder-flag placeholder-flag-large">统一占位图 · 待补充实图</span>{% endif %}
       </div>
       <div class="gallery-meta"><p data-gallery-caption>{{ images[0].caption }}</p><a {% if not images[0].source_url %}hidden{% endif %} href="{{ images[0].source_url or '#' }}" target="_blank" rel="noopener noreferrer" data-gallery-source>{{ images[0].source_name or '查看图片来源' }} ↗</a></div>
       {% if images|length > 1 %}<div class="gallery-thumbs" aria-label="切换平台图片">
-        {% for image in images %}<button type="button" class="gallery-thumb {{ 'is-active' if loop.first else '' }}" aria-pressed="{{ 'true' if loop.first else 'false' }}" aria-label="显示第 {{ loop.index }} 张图片：{{ image.caption }}" data-gallery-thumb data-src="{{ image.src }}" data-alt="{{ platform.name }}；{{ image.caption }}" data-caption="{{ image.caption }}" data-source-url="{{ image.source_url or '' }}" data-source-name="{{ image.source_name or '查看图片来源' }}"><img src="{{ image.src }}" alt="" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}"></button>{% endfor %}
+        {% for image in images %}<button type="button" class="gallery-thumb {{ 'is-active' if loop.first else '' }}" aria-pressed="{{ 'true' if loop.first else 'false' }}" aria-label="显示第 {{ loop.index }} 张图片：{{ image.caption }}" data-gallery-thumb data-src="{{ image.src }}" data-alt="{{ platform.name }}；{{ image.caption }}" data-caption="{{ image.caption }}" data-source-url="{{ image.source_url or '' }}" data-source-name="{{ image.source_name or '查看图片来源' }}"><img src="{{ image.src }}" alt="" loading="lazy" decoding="async" data-image-fallback="{{ url_for('static', filename='img/placeholder-platform.svg') }}"></button>{% endfor %}
       </div>{% endif %}
     </div>
 
